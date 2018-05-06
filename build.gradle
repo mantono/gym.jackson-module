@@ -1,0 +1,96 @@
+buildscript {
+    ext.kotlin_version = '1.2.41'
+    ext.jvm_version = '1.8'
+    ext.junit_platform_version = '1.1.0'
+    ext.jackson_version = '2.9.5'
+    repositories {
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "http://jcenter.bintray.com" }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.junit.platform:junit-platform-gradle-plugin:$junit_platform_version"
+    }
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: "org.jetbrains.kotlin.jvm"
+apply from: "junit.gradle"
+
+group = 'com.mantono'
+version = '0.1.0'
+description = 'gym.data Jackson serializer module'
+
+defaultTasks 'test'
+
+repositories {
+    mavenLocal()
+    maven { url "http://jcenter.bintray.com" }
+    maven { url "http://jitpack.io" }
+    mavenCentral()
+}
+
+compileKotlin {
+    sourceCompatibility = jvm_version
+    kotlinOptions {
+        jvmTarget = jvm_version
+    }
+}
+
+compileJava {
+    sourceCompatibility = jvm_version
+    targetCompatibility = jvm_version
+    options.incremental = true
+    options.encoding = 'UTF-8'
+}
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
+dependencies {
+    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version:kotlin_version
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-jdk8', version:'0.22.5'
+    compile group: 'org.jetbrains.kotlinx', name: 'kotlinx-coroutines-core', version:'0.22.5'
+
+    compile 'com.mantono:gym.data:c32cdc6'
+    compile 'com.mantono:gym.data:c32cdc6:javadoc'
+    compile 'com.mantono:gym.data:c32cdc6:sources'
+
+    compile 'com.mantono:solo:1.0+'
+    compile 'com.mantono:solo:1.0+:javadoc'
+    compile 'com.mantono:solo:1.0+:sources'
+
+    // Jackson
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version:jackson_version
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version:jackson_version
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-parameter-names', version:jackson_version
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version:jackson_version
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version:jackson_version
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+task wrapper(type: Wrapper) {
+    description = 'Generates gradlew[.bat] scripts for faster execution'
+    gradleVersion = "4.7"
+}
