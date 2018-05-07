@@ -18,7 +18,6 @@ object WeightDeserializer: JsonDeserializer<Weight>()
 	override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Weight
 	{
 		val node: JsonNode = p.codec.readTree(p)
-		System.out.println(node)
 		val amount: Double = node["amount"].asDouble()
 		val unit: String = node["unit"].asText()
 		return weightOf(amount, unit)
@@ -42,9 +41,11 @@ object WeightSerializer: JsonSerializer<Weight>()
 
 	private fun writeWeight(gen: JsonGenerator, unit: String, amount: Double)
 	{
-		gen.writeStartObject()
+		if(!gen.outputContext.inObject())
+			gen.writeStartObject()
 		gen.writeStringField("unit", unit)
 		gen.writeNumberField("amount", amount)
-		gen.writeEndObject()
+		if(!gen.outputContext.inObject())
+			gen.writeEndObject()
 	}
 }
