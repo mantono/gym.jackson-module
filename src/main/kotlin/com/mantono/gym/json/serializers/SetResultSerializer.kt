@@ -17,8 +17,8 @@ object SetResultDeserializer: JsonDeserializer<SetResult>()
 	{
 		val node: JsonNode = p.codec.readTree(p)
 		val repetitions: Int = node["repetitions"].asInt()
-		val amount: Double = node["amount"].asDouble()
-		val unit: String = node["unit"].asText()
+		val amount: Double = node["weight"]["amount"].asDouble()
+		val unit: String = node["weight"]["unit"].asText()
 		val timestamp: Instant = Instant.ofEpochSecond(node["seconds"].asLong(), node["nanos"].asLong())
 		return SetResult(repetitions, weightOf(amount, unit), timestamp)
 	}
@@ -31,6 +31,7 @@ object SetResultSerializer: JsonSerializer<SetResult>()
 	{
 		gen.writeStartObject()
 		gen.writeNumberField("repetitions", value.repetitions)
+		gen.writeFieldName("weight")
 		WeightSerializer.serialize(value.weight, gen, serializers)
 		gen.writeNumberField("seconds", value.timestamp.epochSecond)
 		gen.writeNumberField("nanos", value.timestamp.nano)

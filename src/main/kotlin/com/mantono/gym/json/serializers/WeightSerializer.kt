@@ -41,11 +41,9 @@ object WeightSerializer: JsonSerializer<Weight>()
 
 	private fun writeWeight(gen: JsonGenerator, unit: String, amount: Double)
 	{
-		if(!gen.outputContext.inObject())
-			gen.writeStartObject()
+		gen.writeStartObject()
 		gen.writeStringField("unit", unit)
 		gen.writeNumberField("amount", amount)
-		if(!gen.outputContext.inObject())
-			gen.writeEndObject()
+		gen.writeEndObject()
 	}
 }
